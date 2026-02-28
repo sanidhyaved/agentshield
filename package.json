@@ -1,0 +1,15 @@
+{
+  "name": "agentshield-api",
+  "version": "1.0.0",
+  "description": "AgentShield security scanner API for AI agents and MCP servers",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

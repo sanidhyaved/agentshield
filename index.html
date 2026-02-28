@@ -1,0 +1,2941 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentShield – Security Scanner for AI Agents & MCP Servers</title>
+    <meta name="description"
+        content="AgentShield scans AI agents, MCP servers, AI plugins, and extensions for hidden security risks before installation. Fast, lightweight, and developer-first." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #080c14;
+            --bg2: #0d1321;
+            --bg3: #111827;
+            --surface: #131d2e;
+            --surface2: #1a2540;
+            --border: #1e2d45;
+            --border2: #243352;
+            --cyan: #00d4ff;
+            --cyan2: #00a8cc;
+            --green: #00ff88;
+            --green2: #00cc6a;
+            --red: #ff3b5c;
+            --orange: #ff8c42;
+            --yellow: #ffd166;
+            --purple: #a855f7;
+            --text: #e8edf5;
+            --text2: #8b9ab5;
+            --text3: #4a5878;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 4rem);
+            max-width: 1100px;
+            z-index: 100;
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(13, 19, 33, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        @media(max-width: 768px) {
+            nav {
+                top: 1rem;
+                width: calc(100% - 2rem);
+                padding: 0.6rem 1.25rem;
+            }
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--text);
+            text-decoration: none
+        }
+
+        .nav-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem
+        }
+
+        .nav-links a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: .9rem;
+            font-weight: 500;
+            transition: color .2s
+        }
+
+        .nav-links a:hover {
+            color: var(--cyan)
+        }
+
+        .nav-cta {
+            display: flex;
+            gap: .75rem
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .6rem 1.25rem;
+            border-radius: 8px;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .25s;
+            border: none
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border2);
+            color: var(--text2)
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--cyan);
+            color: var(--cyan)
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 212, 255, .25)
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 30px rgba(0, 212, 255, .4)
+        }
+
+        .btn-secondary {
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            color: var(--text)
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cyan);
+            color: var(--cyan)
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, var(--green), var(--green2));
+            color: #000
+        }
+
+        .btn-green:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 25px rgba(0, 255, 136, .3)
+        }
+
+        .btn-large {
+            padding: .85rem 2rem;
+            font-size: 1rem;
+            border-radius: 10px
+        }
+
+        /* HERO */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 212, 255, .08) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none
+        }
+
+        .hero-glow2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, .06) 0%, transparent 70%);
+            top: 30%;
+            right: 10%;
+            pointer-events: none
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: rgba(0, 212, 255, .08);
+            border: 1px solid rgba(0, 212, 255, .25);
+            color: var(--cyan);
+            padding: .4rem 1rem;
+            border-radius: 100px;
+            font-size: .8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: .05em
+        }
+
+        .hero-badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan);
+            animation: pulse 2s infinite
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes subtle-float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -.03em;
+            margin-bottom: 1.5rem;
+            max-width: 900px
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 50%, var(--green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero-sub {
+            font-size: 1.2rem;
+            color: var(--text2);
+            max-width: 640px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem
+        }
+
+        .hero-cli {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: .75rem 1.5rem;
+            font-family: var(--mono);
+            font-size: .85rem;
+            color: var(--cyan);
+            display: inline-flex;
+            align-items: center;
+            gap: .75rem
+        }
+
+        .cli-prompt {
+            color: var(--text3)
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border)
+        }
+
+        .stat {
+            text-align: center
+        }
+
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1
+        }
+
+        .stat-label {
+            font-size: .8rem;
+            color: var(--text2);
+            margin-top: .25rem
+        }
+
+        /* SECTIONS */
+        section {
+            padding: 6rem 2rem
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 1rem;
+            background: rgba(0, 212, 255, .08);
+            border: 1px solid rgba(0, 212, 255, .2);
+            padding: .3rem .8rem;
+            border-radius: 100px
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -.02em;
+            line-height: 1.15;
+            margin-bottom: 1rem
+        }
+
+        .section-sub {
+            font-size: 1.1rem;
+            color: var(--text2);
+            max-width: 600px;
+            line-height: 1.7
+        }
+
+        .text-center {
+            text-align: center
+        }
+
+        .mx-auto {
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        /* PROBLEM */
+        #problem {
+            background: var(--bg2)
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem
+        }
+
+        .problem-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: border-color .25s, transform .25s
+        }
+
+        .problem-card:hover {
+            border-color: var(--border2);
+            transform: translateY(-3px)
+        }
+
+        .problem-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1rem
+        }
+
+        .icon-red {
+            background: rgba(255, 59, 92, .1);
+            border: 1px solid rgba(255, 59, 92, .2)
+        }
+
+        .icon-orange {
+            background: rgba(255, 140, 66, .1);
+            border: 1px solid rgba(255, 140, 66, .2)
+        }
+
+        .icon-yellow {
+            background: rgba(255, 209, 102, .1);
+            border: 1px solid rgba(255, 209, 102, .2)
+        }
+
+        .prob-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .5rem
+        }
+
+        .prob-desc {
+            font-size: .9rem;
+            color: var(--text2);
+            line-height: 1.6
+        }
+
+        .threat-list {
+            margin-top: 2.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem
+        }
+
+        .threat-list h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            color: var(--text2)
+        }
+
+        .threat-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: .75rem
+        }
+
+        .threat-item {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            font-size: .9rem;
+            color: var(--text2)
+        }
+
+        .threat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--red);
+            flex-shrink: 0
+        }
+
+        /* HOW IT WORKS */
+        #how {
+            background: var(--bg)
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+            position: relative
+        }
+
+        .step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            transition: border-color .25s
+        }
+
+        .step:hover {
+            border-color: var(--cyan)
+        }
+
+        .step-num {
+            font-family: var(--mono);
+            font-size: .75rem;
+            color: var(--cyan);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            opacity: .7
+        }
+
+        .step-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem
+        }
+
+        .step h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .5rem
+        }
+
+        .step p {
+            font-size: .875rem;
+            color: var(--text2);
+            line-height: 1.6
+        }
+
+        /* DEMO */
+        #demo {
+            background: var(--bg2)
+        }
+
+        .demo-wrap {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-top: 3rem
+        }
+
+        @media(max-width:768px) {
+            .demo-wrap {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .demo-terminal {
+            background: #0a0f1a;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            font-family: var(--mono);
+            font-size: .825rem
+        }
+
+        .terminal-bar {
+            background: var(--surface);
+            padding: .75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%
+        }
+
+        .dot-red {
+            background: #ff5f57
+        }
+
+        .dot-yellow {
+            background: #ffbd2e
+        }
+
+        .dot-green {
+            background: #28ca41
+        }
+
+        .terminal-title {
+            margin-left: .5rem;
+            font-size: .75rem;
+            color: var(--text3)
+        }
+
+        .terminal-body {
+            padding: 1.5rem;
+            line-height: 1.8
+        }
+
+        .t-cmd {
+            color: var(--cyan)
+        }
+
+        .t-comment {
+            color: var(--text3)
+        }
+
+        .t-label {
+            color: var(--text2)
+        }
+
+        .t-high {
+            color: var(--red);
+            font-weight: 600
+        }
+
+        .t-med {
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        .t-low {
+            color: var(--yellow)
+        }
+
+        .t-green {
+            color: var(--green);
+            font-weight: 600
+        }
+
+        .t-white {
+            color: var(--text)
+        }
+
+        .t-score {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--orange)
+        }
+
+        .demo-findings {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem
+        }
+
+        .finding {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 3px solid transparent;
+            transition: transform .2s
+        }
+
+        .finding:hover {
+            transform: translateX(4px)
+        }
+
+        .finding-high {
+            border-left-color: var(--red)
+        }
+
+        .finding-med {
+            border-left-color: var(--orange)
+        }
+
+        .finding-low {
+            border-left-color: var(--yellow)
+        }
+
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: .5rem
+        }
+
+        .finding-title {
+            font-weight: 700;
+            font-size: .9rem
+        }
+
+        .finding-badge {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: .2rem .6rem;
+            border-radius: 100px
+        }
+
+        .badge-high {
+            background: rgba(255, 59, 92, .15);
+            color: var(--red);
+            border: 1px solid rgba(255, 59, 92, .3)
+        }
+
+        .badge-med {
+            background: rgba(255, 140, 66, .15);
+            color: var(--orange);
+            border: 1px solid rgba(255, 140, 66, .3)
+        }
+
+        .badge-low {
+            background: rgba(255, 209, 102, .1);
+            color: var(--yellow);
+            border: 1px solid rgba(255, 209, 102, .25)
+        }
+
+        .finding-desc {
+            font-size: .8rem;
+            color: var(--text2);
+            margin-bottom: .5rem
+        }
+
+        .finding-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: .75rem;
+            color: var(--text3)
+        }
+
+        .conf {
+            color: var(--cyan)
+        }
+
+        /* MOBILE CAROUSEL UTILITY */
+        @media (max-width: 768px) {
+            .mobile-carousel {
+                display: flex !important;
+                overflow-x: auto !important;
+                scroll-snap-type: x mandatory !important;
+                gap: 1.5rem !important;
+                padding-bottom: 2rem !important;
+                margin-left: -1.5rem !important;
+                margin-right: -1.5rem !important;
+                padding-left: 1.5rem !important;
+                padding-right: 1.5rem !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none;
+            }
+
+            .mobile-carousel::-webkit-scrollbar {
+                display: none;
+            }
+
+            .mobile-carousel>* {
+                flex: 0 0 85% !important;
+                scroll-snap-align: center !important;
+                min-width: 280px !important;
+            }
+        }
+
+        /* FEATURES REDESIGN */
+        #features {
+            background: var(--bg);
+            padding: 10rem 2rem;
+            position: relative;
+        }
+
+        .platform-suite {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .suite-card {
+            background: rgba(13, 19, 33, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 28px;
+            padding: 3rem;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .suite-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), transparent, rgba(168, 85, 247, 0.1));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .suite-card:hover {
+            transform: translateY(-12px);
+            background: rgba(13, 19, 33, 0.6);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 212, 255, 0.1);
+        }
+
+        .suite-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .suite-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .suite-card p {
+            color: var(--text2);
+            font-size: 1rem;
+            line-height: 1.7;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 1100px) {
+            .platform-suite {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* COMPARISON SECTION (PROBLEM) */
+        @media (max-width: 850px) {
+            .diff-col {
+                padding: 1.5rem !important;
+            }
+
+            .diff-list li {
+                font-size: 0.85rem !important;
+            }
+
+            .diff-list span {
+                flex-shrink: 0;
+            }
+        }
+
+        /* WHY DIFFERENT (SPLIT) */
+        .split-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 4rem;
+            position: relative;
+        }
+
+        .split-divider {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--border), transparent);
+            transform: translateX(-50%);
+        }
+
+        .compare-pane h4 {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .compare-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .compare-item {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+        }
+
+        .compare-item .icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .compare-item.bad .icon {
+            background: rgba(255, 59, 92, 0.1);
+            color: var(--red);
+        }
+
+        .compare-item.good .icon {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--green);
+        }
+
+        .compare-item .subtext {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text3);
+            margin-top: 0.4rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 900px) {
+            .split-compare {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .split-divider {
+                display: none;
+            }
+        }
+
+        /* PRICING */
+        #pricing {
+            background: var(--bg)
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem
+        }
+
+        .pricing-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: transform .25s
+        }
+
+        .pricing-card.popular {
+            border-color: var(--cyan);
+            position: relative
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px)
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+            color: #000;
+            font-size: .75rem;
+            font-weight: 700;
+            padding: .3rem 1rem;
+            border-radius: 100px;
+            white-space: nowrap
+        }
+
+        .plan-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text2);
+            margin-bottom: .5rem
+        }
+
+        .plan-price {
+            font-size: 2.75rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: .25rem
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text2)
+        }
+
+        .plan-desc {
+            font-size: .85rem;
+            color: var(--text2);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .plan-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .6rem;
+            margin-bottom: 2rem
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            font-size: .875rem;
+            color: var(--text2)
+        }
+
+        .check {
+            color: var(--green);
+            font-size: 1rem
+        }
+
+        /* ROADMAP */
+        #roadmap {
+            background: var(--bg2)
+        }
+
+        .roadmap-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem
+        }
+
+        .roadmap-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            position: relative
+        }
+
+        .phase-badge {
+            display: inline-block;
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            padding: .25rem .7rem;
+            border-radius: 100px;
+            margin-bottom: 1rem
+        }
+
+        .phase1 {
+            background: rgba(0, 212, 255, .1);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 212, 255, .2)
+        }
+
+        .phase2 {
+            background: rgba(168, 85, 247, .1);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, .2)
+        }
+
+        .phase3 {
+            background: rgba(0, 255, 136, .1);
+            color: var(--green);
+            border: 1px solid rgba(0, 255, 136, .2)
+        }
+
+        .phase4 {
+            background: rgba(255, 140, 66, .1);
+            color: var(--orange);
+            border: 1px solid rgba(255, 140, 66, .2)
+        }
+
+        .roadmap-item h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: .5rem
+        }
+
+        .roadmap-item p {
+            font-size: .85rem;
+            color: var(--text2);
+            line-height: 1.6
+        }
+
+        .phase-current {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green)
+        }
+
+        /* CTA SECTION */
+        #cta {
+            background: var(--bg);
+            padding: 8rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .cta-glow {
+            position: absolute;
+            width: 700px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(0, 212, 255, .07) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none
+        }
+
+        #cta h2 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 1rem
+        }
+
+        #cta p {
+            color: var(--text2);
+            font-size: 1.1rem;
+            max-width: 560px;
+            margin: 0 auto 2.5rem
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        @media(max-width: 600px) {
+            .cta-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .cta-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--bg2);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem
+        }
+
+        .footer-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 2rem
+        }
+
+        @media(max-width:768px) {
+            .footer-inner {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: .75rem;
+            text-decoration: none;
+            color: var(--text)
+        }
+
+        .footer-desc {
+            font-size: .85rem;
+            color: var(--text2);
+            line-height: 1.6;
+            max-width: 280px
+        }
+
+        .footer-col h4 {
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem
+        }
+
+        .footer-col ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .6rem
+        }
+
+        .footer-col ul li a {
+            font-size: .85rem;
+            color: var(--text2);
+            text-decoration: none;
+            transition: color .2s
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--cyan)
+        }
+
+        .footer-bottom {
+            max-width: 1100px;
+            margin: 2rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .8rem;
+            color: var(--text3)
+        }
+
+        /* SCORE RING */
+        .score-ring-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+            background: var(--bg3);
+            border-radius: 12px;
+            border: 1px solid var(--border)
+        }
+
+        .score-ring {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: conic-gradient(var(--orange) 0% 68%, var(--border) 68% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .score-ring-inner {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--orange)
+        }
+
+        .score-meta h4 {
+            font-weight: 700;
+            font-size: .95rem
+        }
+
+        .score-meta p {
+            font-size: .8rem;
+            color: var(--text2)
+        }
+
+        .severity-counts {
+            display: flex;
+            gap: 1rem;
+            margin-top: .4rem
+        }
+
+        .sev {
+            font-size: .75rem;
+            font-weight: 600
+        }
+
+        .sev-h {
+            color: var(--red)
+        }
+
+        .sev-m {
+            color: var(--orange)
+        }
+
+        .sev-l {
+            color: var(--yellow)
+        }
+
+        /* MITRE */
+        .mitre-tag {
+            display: inline-block;
+            font-size: .7rem;
+            font-weight: 600;
+            padding: .2rem .55rem;
+            border-radius: 4px;
+            background: rgba(168, 85, 247, .1);
+            border: 1px solid rgba(168, 85, 247, .2);
+            color: var(--purple);
+            font-family: var(--mono)
+        }
+
+        /* Animated border */
+        @keyframes shimmer {
+            0% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+
+            100% {
+                background-position: 0% 50%
+            }
+        }
+
+        .animated-border {
+            background: linear-gradient(90deg, var(--cyan), var(--purple), var(--green), var(--cyan));
+            background-size: 300%;
+            animation: shimmer 4s linear infinite;
+            padding: 1px;
+            border-radius: 16px
+        }
+
+        .animated-border-inner {
+            background: var(--surface);
+            border-radius: 15px;
+            padding: 2rem
+        }
+
+        /* Responsive nav */
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .nav-cta .btn-ghost {
+                display: none
+            }
+        }
+
+        /* ── SCANNER SECTION ─────────────────────────────────────────────────────── */
+        #scanner {
+            background: var(--bg2);
+            padding: 5rem 2rem
+        }
+
+        .scanner-card {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 820px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden
+        }
+
+        .scanner-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cyan), var(--purple), var(--green));
+            background-size: 200%;
+            animation: shimmer 3s linear infinite
+        }
+
+        .scanner-input-row {
+            display: flex;
+            gap: .75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        @media(max-width: 500px) {
+            .scanner-input-row .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .scan-input {
+            flex: 1;
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: .95rem;
+            padding: .85rem 1.2rem;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color .2s
+        }
+
+        .scan-input::placeholder {
+            color: var(--text3)
+        }
+
+        .scan-input:focus {
+            border-color: var(--cyan)
+        }
+
+        .scan-input:disabled {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        .examples {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0
+        }
+
+        .ex-label {
+            font-size: .75rem;
+            color: var(--text3)
+        }
+
+        .ex-pill {
+            font-size: .75rem;
+            font-family: var(--mono);
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            padding: .2rem .65rem;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .ex-pill:hover {
+            border-color: var(--cyan);
+            color: var(--cyan)
+        }
+
+        /* LOADING */
+        .loading-box {
+            display: none;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            font-family: var(--mono);
+            font-size: .82rem
+        }
+
+        .loading-box.active {
+            display: block
+        }
+
+        .ld-line {
+            color: var(--text2);
+            margin-bottom: .3rem;
+            opacity: 0;
+            animation: fadeSlide .4s forwards
+        }
+
+        @keyframes fadeSlide {
+            to {
+                opacity: 1;
+                transform: none
+            }
+
+            from {
+                opacity: 0;
+                transform: translateY(6px)
+            }
+        }
+
+        .ld-spinner {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border: 2px solid var(--border2);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            margin-right: .5rem;
+            vertical-align: middle
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* RESULTS */
+        .results-box {
+            display: none;
+            margin-top: 2rem
+        }
+
+        .results-box.active {
+            display: block
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap
+        }
+
+        .res-ring {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .res-ring-inner {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.4rem
+        }
+
+        .res-meta {
+            flex: 1;
+            min-width: 200px
+        }
+
+        .res-meta h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: .25rem
+        }
+
+        .res-meta p {
+            font-size: .85rem;
+            color: var(--text2)
+        }
+
+        .res-badges {
+            display: flex;
+            gap: .75rem;
+            margin-top: .6rem;
+            flex-wrap: wrap
+        }
+
+        .res-badge {
+            font-size: .8rem;
+            font-weight: 700;
+            padding: .25rem .75rem;
+            border-radius: 100px
+        }
+
+        .badge-critical {
+            background: rgba(255, 59, 92, .15);
+            color: var(--red);
+            border: 1px solid rgba(255, 59, 92, .35)
+        }
+
+        .badge-high-lvl {
+            background: rgba(255, 140, 66, .15);
+            color: var(--orange);
+            border: 1px solid rgba(255, 140, 66, .3)
+        }
+
+        .badge-medium-lvl {
+            background: rgba(255, 209, 102, .1);
+            color: var(--yellow);
+            border: 1px solid rgba(255, 209, 102, .25)
+        }
+
+        .badge-low-lvl {
+            background: rgba(0, 255, 136, .08);
+            color: var(--green);
+            border: 1px solid rgba(0, 255, 136, .2)
+        }
+
+        .finding-snippet {
+            font-family: var(--mono);
+            font-size: .75rem;
+            background: var(--bg);
+            color: var(--orange);
+            padding: .5rem .75rem;
+            border-radius: 6px;
+            margin: .5rem 0;
+            border-left: 2px solid var(--border2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .finding-remediation {
+            font-size: .8rem;
+            color: var(--green);
+            margin-top: .35rem;
+            display: flex;
+            align-items: flex-start;
+            gap: .4rem
+        }
+
+        .no-findings {
+            text-align: center;
+            padding: 2.5rem;
+            background: rgba(0, 255, 136, .04);
+            border: 1px solid rgba(0, 255, 136, .15);
+            border-radius: 12px;
+            color: var(--green)
+        }
+
+        .error-box {
+            display: none;
+            background: rgba(255, 59, 92, .06);
+            border: 1px solid rgba(255, 59, 92, .25);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+            color: var(--red);
+            font-size: .9rem
+        }
+
+        .error-box.active {
+            display: block
+        }
+
+        /* MODAL / DASHBOARD */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(8, 12, 20, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .dashboard-box {
+            background: var(--bg2);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .db-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .db-desc {
+            font-size: 0.9rem;
+            color: var(--text2);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .db-input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .db-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .db-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.9rem;
+        }
+
+        .db-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+        }
+
+        .db-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Privilege Info Popup */
+        .priv-info-trigger {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border: 1px solid currentColor;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: help;
+            transition: all 0.2;
+            margin-left: 8px;
+            opacity: 0.6;
+            font-family: inherit;
+        }
+
+        .priv-info-trigger:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .priv-info-popup {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: -10px;
+            width: 280px;
+            background: #0a0f1a;
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 212, 255, 0.05);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: left;
+            backdrop-filter: blur(12px);
+            cursor: default;
+        }
+
+        .priv-info-popup::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 14px;
+            width: 12px;
+            height: 12px;
+            background: #0a0f1a;
+            border-top: 1px solid var(--border);
+            border-left: 1px solid var(--border);
+            transform: rotate(45deg);
+        }
+
+        .priv-info-trigger:hover .priv-info-popup,
+        .priv-info-trigger:focus .priv-info-popup {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <a href="#" class="nav-logo">
+            <div class="nav-logo-icon">🛡️</div>
+            AgentShield
+        </a>
+        <div class="nav-links">
+            <a href="#problem">The Risk</a>
+            <a href="#how">How it Works</a>
+            <a href="#features">The Platform</a>
+            <a href="#demo">Live Demo</a>
+            <!-- <a href="#pricing">Pricing</a> -->
+            <!-- <a href="#roadmap">Roadmap</a> -->
+        </div>
+        <div class="nav-cta">
+            <!-- <a href="javascript:void(0)" onclick="openDashboard()" class="btn btn-ghost">CI/CD Dashboard</a> -->
+            <a href="#scanner" class="btn btn-primary">Start Scanning</a>
+        </div>
+    </nav>
+
+    <!-- DASHBOARD MODAL -->
+    <div id="dashModal" class="modal-overlay">
+        <!-- LOGIN PANE -->
+        <div class="dashboard-box" id="loginPane" style="max-width:400px;text-align:center;">
+            <div style="font-size:3rem;margin-bottom:1rem;">🛡️</div>
+            <h2 class="db-title">AgentShield Security</h2>
+            <p class="db-desc" style="margin-bottom:2rem;">Login to unlock AgentShield Insights, scan history,
+                and advanced threat profiling for your AI workforce.</p>
+
+            <div style="display:flex; flex-direction:column; gap:1rem; margin-bottom:1.5rem;">
+                <button class="btn"
+                    style="background:var(--bg3); border:1px solid var(--border); width:100%; padding:0.8rem; display:flex; justify-content:center; align-items:center; gap:0.5rem;"
+                    onclick="performLogin()">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd"
+                            d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.695-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Continue with GitHub
+                </button>
+                <button class="btn"
+                    style="background:var(--bg3); border:1px solid var(--border); width:100%; padding:0.8rem; display:flex; justify-content:center; align-items:center; gap:0.5rem;"
+                    onclick="performLogin()">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    Continue with Google
+                </button>
+            </div>
+
+            <div class="db-actions" style="justify-content:center;">
+                <button onclick="closeDashboard()" class="btn btn-ghost">Cancel</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD PANE -->
+        <div class="dashboard-box" id="dashPane" style="display:none; max-width:650px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h2 class="db-title" style="margin:0;">My Dashboard</h2>
+                <div style="display:flex; gap:0.75rem; align-items:center;">
+                    <div
+                        style="width:36px; height:36px; border-radius:50%; background:var(--cyan); color:var(--bg); display:flex; justify-content:center; align-items:center; font-weight:700; font-size:1rem;">
+                        DV</div>
+                    <span style="font-size:0.85rem; color:var(--text2); font-weight:600;">developer@company.com</span>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0.75rem; margin-bottom:1.5rem;">
+                <div
+                    style="background:var(--bg3); padding:1rem; border-radius:8px; border:1px solid var(--border); text-align:center;">
+                    <div style="font-size:1.75rem; font-weight:800; color:var(--text)">42</div>
+                    <div style="font-size:0.7rem; color:var(--text3); text-transform:uppercase; margin-top:0.25rem;">
+                        Total Scans</div>
+                </div>
+                <div
+                    style="background:var(--bg3); padding:1rem; border-radius:8px; border:1px solid var(--border); text-align:center;">
+                    <div style="font-size:1.75rem; font-weight:800; color:var(--red)">8</div>
+                    <div style="font-size:0.7rem; color:var(--text3); text-transform:uppercase; margin-top:0.25rem;">
+                        Critical</div>
+                </div>
+                <div
+                    style="background:var(--bg3); padding:1rem; border-radius:8px; border:1px solid var(--border); text-align:center;">
+                    <div style="font-size:1.75rem; font-weight:800; color:var(--orange)">14</div>
+                    <div style="font-size:0.7rem; color:var(--text3); text-transform:uppercase; margin-top:0.25rem;">
+                        High</div>
+                </div>
+                <div
+                    style="background:var(--bg3); padding:1rem; border-radius:8px; border:1px solid var(--border); text-align:center;">
+                    <div style="font-size:1.75rem; font-weight:800; color:var(--cyan)">Secured</div>
+                    <div style="font-size:0.7rem; color:var(--text3); text-transform:uppercase; margin-top:0.25rem;">
+                        Scan Status</div>
+                </div>
+            </div>
+
+            <!-- Dashboard sections hidden/commented per CI/CD removal request -->
+            <div
+                style="padding: 2rem 1rem; text-align: center; color: var(--text3); font-size: 0.9rem; border: 1px dashed var(--border); border-radius: 8px; margin-bottom: 2rem;">
+                Advanced monitoring and governance tools are currently being refined for the next phase of AgentShield.
+                <br><br>
+                <span style="color: var(--cyan)">Your current scanning capacity: <strong>Unlimited</strong></span>
+            </div>
+
+            <!-- Manual integration inputs hidden per request -->
+
+            <div
+                style="background:var(--bg); border:1px solid var(--border); padding:1.25rem; border-radius:8px; margin-bottom:1.5rem;">
+                <!-- CLI Guide Removed -->
+            </div>
+
+            <div class="db-actions">
+                <button onclick="performLogout()" class="btn btn-ghost"
+                    style="color:var(--red); margin-right:auto;">Logout</button>
+                <button onclick="saveDashboard()" class="btn btn-primary">Save & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <section id="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-glow2"></div>
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            The Standard for AI Agent Supply Chain Security
+        </div>
+        <h1>Trust No Agent.<br><span class="gradient-text">Verify Your AI Workforce.</span></h1>
+        <p class="hero-sub">The industry’s first static analysis platform built specifically for AI Agents and MCP
+            Servers.
+            Scan any repository or package for hidden lateral movement, data theft, and prompt-driven exploits in
+            seconds.</p>
+        <div class="hero-ctas">
+            <a href="#scanner" class="btn btn-primary btn-large" id="hero-scan-btn">🔍 Run a Free Scan</a>
+            <a href="#how" class="btn btn-secondary btn-large" id="hero-how-btn">🛡️ Learn About AST Analysis</a>
+        </div>
+        <!-- Removed CLI box per request -->
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-num">12K+</div>
+                <div class="stat-label">Scans Completed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">847</div>
+                <div class="stat-label">Threats Detected</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">0ms</div>
+                <div class="stat-label">Setup Required</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">100%</div>
+                <div class="stat-label">Static Analysis</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCANNER -->
+    <section id="scanner">
+        <div class="container">
+            <div class="text-center" style="margin-bottom:2rem">
+                <span class="section-label">Live Scanner</span>
+                <h2>Scan Any AI Tool<br><span class="gradient-text">Right Now.</span></h2>
+                <p class="section-sub mx-auto">Paste a GitHub repo URL or npm package name. AgentShield fetches the
+                    source, runs static analysis, and returns a full security report - no install required.</p>
+            </div>
+            <div class="scanner-card">
+                <div class="scanner-input-row">
+                    <input id="scanInput" class="scan-input" type="text"
+                        placeholder="github.com/owner/repo  or  npm-package-name" autocomplete="off"
+                        spellcheck="false" />
+                    <button id="scanBtn" class="btn btn-primary btn-large" onclick="startScan()">🔍 Scan</button>
+                </div>
+                <div
+                    style="display:flex; justify-content:center; align-items:center; margin-top:0.75rem; gap:0.5rem; font-size:0.8rem; color:var(--text2)">
+                    <input type="checkbox" id="simPrCheck"
+                        style="accent-color:var(--cyan);cursor:pointer;width:14px;height:14px;">
+                    <label for="simPrCheck" style="cursor:pointer;">Simulate CI/CD PR Diff</label>
+                </div>
+                <div class="examples" style="justify-content:center; margin-top:1rem;">
+                    <span class="ex-label">Try:</span>
+                    <span class="ex-pill" onclick="fillAndScan('expressjs/express')">expressjs/express</span>
+                    <span class="ex-pill" onclick="fillAndScan('axios')">axios</span>
+                    <span class="ex-pill" onclick="fillAndScan('lodash')">lodash</span>
+                    <span class="ex-pill" onclick="fillAndScan('chalk')">chalk</span>
+                    <span class="ex-pill" onclick="fillAndScan('dotenv')">dotenv</span>
+                </div>
+                <div id="loadingBox" class="loading-box">
+                    <div id="ldLines"></div>
+                </div>
+                <div id="errorBox" class="error-box"></div>
+                <div id="resultsBox" class="results-box">
+                    <div id="resultsHeader" class="results-header"></div>
+                    <div id="findingsList"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section id="problem" style="padding: 10rem 2rem; background: var(--bg); position: relative; overflow: hidden;">
+        <div class="container" style="max-width: 1100px; margin: 0 auto; position: relative; z-index: 2;">
+            <div style="text-align: center; margin-bottom: 5rem;">
+                <span class="section-label">The AI Supply Chain</span>
+                <h2 style="font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.1; margin-top: 1.5rem;">AI Tools are
+                    the<br><span class="gradient-text">New Attack Surface.</span></h2>
+                <p class="section-sub mx-auto"
+                    style="max-width: 700px; margin-top: 2rem; font-size: 1.2rem; color: var(--text2);">The moment you
+                    connect an MCP server or an AI Agent, you're opening a tunnel into your infrastructure. Current
+                    security tools are blind to how these agents use tools, access files, and exfiltrate your data.</p>
+            </div>
+
+            <!-- COMPARISON SECTION -->
+            <div class="problem-compare-grid"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 6rem;">
+                <style>
+                    @media(max-width: 850px) {
+                        .problem-compare-grid {
+                            grid-template-columns: 1fr !important;
+                        }
+                    }
+                </style>
+                <div class="diff-col"
+                    style="background: rgba(255, 59, 92, 0.05); border: 1px solid rgba(255, 59, 92, 0.2); padding: 2.5rem; border-radius: 24px;">
+                    <h3
+                        style="color: var(--red); font-size: 1.4rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <span
+                            style="background: var(--red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem;">✕</span>
+                        Generic Scanners (Snyk/Socket)
+                    </h3>
+                    <ul class="diff-list" style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                        <li style="display: flex; gap: 0.75rem; color: var(--text2);"><span
+                                style="color: var(--red); opacity: 0.6;">✕</span> Misses Prompt Injection in system
+                            prompts</li>
+                        <li style="display: flex; gap: 0.75rem; color: var(--text2);"><span
+                                style="color: var(--red); opacity: 0.6;">✕</span> Blind to AST-level "Tool Use" abuse
+                        </li>
+                        <li style="display: flex; gap: 0.75rem; color: var(--text2);"><span
+                                style="color: var(--red); opacity: 0.6;">✕</span> High false-positives on internal
+                            engine logic</li>
+                        <li style="display: flex; gap: 0.75rem; color: var(--text2);"><span
+                                style="color: var(--red); opacity: 0.6;">✕</span> No visibility into MCP/AI-Tool
+                            privilege escalation</li>
+                    </ul>
+                </div>
+                <div class="diff-col good"
+                    style="background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.3); padding: 2.5rem; border-radius: 24px; position: relative;">
+                    <div
+                        style="position: absolute; top: -12px; right: 24px; background: var(--green); color: var(--bg); font-size: 0.7rem; font-weight: 800; padding: 0.3rem 0.8rem; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.05em;">
+                        AI-First Engine</div>
+                    <h3
+                        style="color: var(--green); font-size: 1.4rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <span
+                            style="background: var(--green); color: var(--bg); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem;">✓</span>
+                        AgentShield Precision
+                    </h3>
+                    <ul class="diff-list" style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                        <li style="display: flex; gap: 0.75rem; color: var(--text);"><span
+                                style="color: var(--green);">✓</span> Detects obfuscated payloads in LLM templates</li>
+                        <li style="display: flex; gap: 0.75rem; color: var(--text);"><span
+                                style="color: var(--green);">✓</span> Deterministic Privilege Surface Scoring</li>
+                        <li style="display: flex; gap: 0.75rem; color: var(--text);"><span
+                                style="color: var(--green);">✓</span> Correlation engine links secrets to network calls
+                        </li>
+                        <li style="display: flex; gap: 0.75rem; color: var(--text);"><span
+                                style="color: var(--green);">✓</span> Built for MCP servers and AI Agent architecture
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="problem-grid mobile-carousel">
+                <div class="problem-card"
+                    style="background: var(--surface); padding: 2rem; border-radius: 20px; border: 1px solid var(--border);">
+                    <div class="problem-icon" style="font-size: 2rem; margin-bottom: 1rem;">🗝️</div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--text);">Credential Harvesting
+                    </h4>
+                    <p style="font-size: 0.9rem; color: var(--text2); line-height: 1.6;">AI tools frequently access
+                        <code style="background: var(--bg); color: var(--cyan);">.env</code> and SSH keys under the
+                        guise of "loading configs."
+                    </p>
+                </div>
+                <div class="problem-card"
+                    style="background: var(--surface); padding: 2rem; border-radius: 20px; border: 1px solid var(--border);">
+                    <div class="problem-icon" style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--text);">Shadow Execution</h4>
+                    <p style="font-size: 0.9rem; color: var(--text2); line-height: 1.6;">MCP servers can silently spawn
+                        shells or execute commands on your system with near-zero friction.</p>
+                </div>
+                <div class="problem-card"
+                    style="background: var(--surface); padding: 2rem; border-radius: 20px; border: 1px solid var(--border);">
+                    <div class="problem-icon" style="font-size: 2rem; margin-bottom: 1rem;">💉</div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--text);">Remote Prompt Injection
+                    </h4>
+                    <p style="font-size: 0.9rem; color: var(--text2); line-height: 1.6;">Encoded payloads that
+                        manipulate your AI into doing things it shouldn't - the XSS of the AI era.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how" style="padding: 10rem 2rem; background: var(--bg2);">
+        <div class="container" style="max-width: 1000px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 6rem;">
+                <span class="section-label">THE PROCESS</span>
+                <h2 style="font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1.1; margin-top: 1.5rem;">Deep Static
+                    Guardrails. <br><span class="gradient-text">Zero Latency.</span></h2>
+            </div>
+
+            <div class="timeline" style="position: relative; display: flex; flex-direction: column; gap: 4rem;">
+                <!-- Vertical Line -->
+                <div
+                    style="position: absolute; left: 40px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--cyan), var(--purple), transparent);">
+                </div>
+
+                <div class="step-card" style="display: flex; gap: 3rem; align-items: flex-start; position: relative;">
+                    <div
+                        style="width: 80px; height: 80px; background: var(--surface); border: 2px solid var(--cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; z-index: 2; box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);">
+                        📥</div>
+                    <div style="padding-top: 1rem;">
+                        <span
+                            style="font-family: var(--mono); font-size: 0.75rem; color: var(--cyan); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Step
+                            01</span>
+                        <h3 style="font-size: 1.5rem; margin: 0.5rem 0 1rem; color: var(--text);">Submit & Fetch</h3>
+                        <p style="color: var(--text2); line-height: 1.6; max-width: 600px;">Connect a repo or npm
+                            package. Our engine pulls the source tree instantly. <strong>Nothing ever runs
+                                globally</strong> - the inspection is strictly sandboxed.</p>
+                    </div>
+                </div>
+
+                <div class="step-card" style="display: flex; gap: 3rem; align-items: flex-start; position: relative;">
+                    <div
+                        style="width: 80px; height: 80px; background: var(--surface); border: 2px solid var(--purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; z-index: 2; box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);">
+                        ⚛️</div>
+                    <div style="padding-top: 1rem;">
+                        <span
+                            style="font-family: var(--mono); font-size: 0.75rem; color: var(--purple); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Step
+                            02</span>
+                        <h3 style="font-size: 1.5rem; margin: 0.5rem 0 1rem; color: var(--text);">AST Logic
+                            Decomposition</h3>
+                        <p style="color: var(--text2); line-height: 1.6; max-width: 600px;">We break down code into its
+                            Abstract Syntax Tree. This allows AgentShield to trace how variables flow from untrusted
+                            inputs into dangerous "sinks" like <code>exec()</code> or <code>eval()</code>.</p>
+                    </div>
+                </div>
+
+                <div class="step-card" style="display: flex; gap: 3rem; align-items: flex-start; position: relative;">
+                    <div
+                        style="width: 80px; height: 80px; background: var(--surface); border: 2px solid var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; z-index: 2; box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);">
+                        🛡️</div>
+                    <div style="padding-top: 1rem;">
+                        <span
+                            style="font-family: var(--mono); font-size: 0.75rem; color: var(--green); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Step
+                            03</span>
+                        <h3 style="font-size: 1.5rem; margin: 0.5rem 0 1rem; color: var(--text);">Risk Profiling</h3>
+                        <p style="color: var(--text2); line-height: 1.6; max-width: 600px;">Findings are correlated. A
+                            secret read mixed with an outbound network call is flagged as "Critical Exfiltration" -
+                            while the same call in a test file is downgraded.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DEMO -->
+    <section id="demo">
+        <div class="container">
+            <div class="text-center">
+                <span class="section-label">Live Demo</span>
+                <h2>See AgentShield<br><span class="gradient-text">In Action.</span></h2>
+                <p class="section-sub mx-auto">A real scan output for a popular MCP server package. This is what
+                    AgentShield surfaces in under 30 seconds.</p>
+            </div>
+            <div class="demo-wrap">
+                <div>
+                    <div class="demo-terminal">
+                        <div class="terminal-bar">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                            <span class="terminal-title">agentshield - scan results</span>
+                        </div>
+                        <div class="terminal-body">
+                            <div><span class="t-comment"># Initializing deep scan via web-hook...</span></div>
+                            <div><span class="t-cmd">Analyzing github.com/mcp-server-git...</span></div>
+                            <div>&nbsp;</div>
+                            <div><span class="t-label">Target Package: </span><span
+                                    class="t-white">mcp-server-git@1.2.4</span>
+                            </div>
+                            <div><span class="t-label">Files Analyzed: </span><span class="t-white">47 files</span>
+                            </div>
+                            <div><span class="t-label">Rules Applied: </span><span class="t-white">312 patterns</span>
+                            </div>
+                            <div>&nbsp;</div>
+                            <div>──────────────────────────────</div>
+                            <div>&nbsp;</div>
+                            <div><span class="t-label">PRIVILEGE SURFACE </span><span class="t-score"
+                                    style="color:var(--orange)">Elevated (7 points)</span></div>
+                            <div>&nbsp;</div>
+                            <div><span class="t-label">Capability Profile</span></div>
+                            <div><span class="t-white">Filesystem Access: </span><span class="t-green">Present (4
+                                    calls)</span></div>
+                            <div><span class="t-white">Network Access: </span><span class="t-green">Outbound (1
+                                    call)</span></div>
+                            <div><span class="t-white">Dynamic Exec: </span><span class="t-red">Detected (eval)</span>
+                            </div>
+                            <div><span class="t-white">Environment: </span><span class="t-green">Limited (1
+                                    variable)</span></div>
+                            <div>&nbsp;</div>
+                            <div>──────────────────────────────</div>
+                            <div>&nbsp;</div>
+                            <div><span class="t-high">[HIGH] </span><span class="t-white">Command Injection via
+                                    exec()</span></div>
+                            <div><span class="t-label">File: </span><span class="t-white">src/git.js:142</span></div>
+                            <div><span class="t-label">Conf: </span><span class="t-green">87%</span></div>
+                            <div>&nbsp;</div>
+                            <div><span class="t-green">✓ Analysis Complete. Deep Report Generated.</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="score-ring-wrap">
+                        <div class="score-ring">
+                            <div class="score-ring-inner">68</div>
+                        </div>
+                        <div class="score-meta">
+                            <h4>mcp-server-git</h4>
+                            <p>Version 1.2.4 · 47 files scanned</p>
+                            <div class="severity-counts">
+                                <span class="sev sev-h">1 HIGH</span>
+                                <span class="sev sev-m">3 MED</span>
+                                <span class="sev sev-l">2 LOW</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-findings">
+                        <!-- PRIVILEGE SURFACE SUMMARY -->
+                        <div class="finding"
+                            style="border-left: 4px solid var(--orange); background: rgba(255, 140, 66, 0.05);">
+                            <div class="finding-header">
+                                <div class="finding-title">📊 Privilege Surface: Elevated (7 points)</div>
+                                <span class="finding-badge" style="background:var(--orange); color:#000;">7 PTS</span>
+                            </div>
+                            <div class="finding-desc" style="font-size: 0.8rem; color: var(--text2);">
+                                <b>Why Elevated?</b><br>
+                                • Filesystem write surface (src/git.js)<br>
+                                • Dynamic module loading detected<br>
+                                • Outbound network capability (telemetry.js)
+                            </div>
+                        </div>
+
+                        <div class="finding finding-high">
+                            <div class="finding-header">
+                                <div class="finding-title">⚠ Command Injection via exec()</div>
+                                <span class="finding-badge badge-high">HIGH</span>
+                            </div>
+                            <div class="finding-desc">Unsanitized user input passed directly to child_process.exec().
+                                Allows arbitrary OS command execution.</div>
+                            <div class="finding-meta">
+                                <span class="conf">87% confidence</span>
+                                <span>src/git.js:142</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PLATFORM (linear-grade redesigned) -->
+    <section id="features">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 5rem;">
+                <span class="section-label">Enterprise Platform</span>
+                <h2 style="font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1.1; margin-top: 1.5rem;">The Security
+                    Layer
+                    for <br><span class="gradient-text">Unified AI Governance.</span></h2>
+                <p class="section-sub mx-auto" style="margin-top: 1.5rem;">AgentShield isn't just a scanner. It's an
+                    industrial-grade platform designed to control how AI agents interact with your infrastructure.</p>
+            </div>
+
+            <div class="platform-suite mobile-carousel">
+                <div class="suite-card">
+                    <div class="suite-icon">🔍</div>
+                    <h3>Capability Layer</h3>
+                    <p><b>What can it do?</b> Automatically profile system-level capabilities. We detect shell access,
+                        filesystem writes, and network egress before analyzing a single line of logic.</p>
+                </div>
+                <div class="suite-card">
+                    <div class="suite-icon">⚖️</div>
+                    <h3>Privilege Layer</h3>
+                    <p><b>How much power?</b> A deterministic scoring model that quantifies risk. Transparent
+                        point-based assessment (Shell=3pt, Network=2pt) that enterprise audit teams require.</p>
+                </div>
+                <div class="suite-card">
+                    <div class="suite-icon">🛡️</div>
+                    <h3>Vulnerability Layer</h3>
+                    <p><b>Is it compromised?</b> Deep AST taint tracking that correlates untrusted LLM inputs with
+                        dangerous OS sinks to isolate 0-day exploits and supply chain backdoors.</p>
+                </div>
+                <div class="suite-card">
+                    <div class="suite-icon">⚡</div>
+                    <h3>Governance Webhooks</h3>
+                    <p>Native integrations for your security stack. Automatically block or alert on risky model tool-use
+                        before it connects to your production data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY DIFFERENT (SPLIT) -->
+    <section id="different">
+        <div class="container" style="max-width: 1200px;">
+            <div class="text-center">
+                <span class="section-label">THE DIFFERENTIATOR</span>
+                <h2 style="font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1.1; margin-top: 1.5rem;">AI Problems
+                    Require <br><span class="gradient-text">AI-Native Solutions.</span></h2>
+            </div>
+
+            <div class="split-compare">
+                <div class="split-divider"></div>
+
+                <div class="compare-pane pane-legacy">
+                    <h4><span style="color: var(--red);">●</span> Traditional Security (SAST/SCA)</h4>
+                    <div class="compare-list">
+                        <div class="compare-item bad">
+                            <span class="icon">✕</span>
+                            <div>
+                                Pattern-only Matching
+                                <span class="subtext">Fails against obfuscated AI tool payloads and dynamic command
+                                    interpolation.</span>
+                            </div>
+                        </div>
+                        <div class="compare-item bad">
+                            <span class="icon">✕</span>
+                            <div>
+                                CVE Dependency Focus
+                                <span class="subtext">Ignores 0-day architectural risks in custom MCP servers and Agent
+                                    tools.</span>
+                            </div>
+                        </div>
+                        <div class="compare-item bad">
+                            <span class="icon">✕</span>
+                            <div>
+                                Static Thresholds
+                                <span class="subtext">Treats internal system logic (eval) as critical vulnerabilities,
+                                    causing noise fatigue.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="compare-pane pane-shield">
+                    <h4><span style="color: var(--green);">●</span> AgentShield Intelligence</h4>
+                    <div class="compare-list">
+                        <div class="compare-item good">
+                            <span class="icon">✓</span>
+                            <div>
+                                AST Data-Flow Analysis
+                                <span class="subtext">Uses taint tracking to determine if untrusted LLM input can reach
+                                    dangerous system sinks.</span>
+                            </div>
+                        </div>
+                        <div class="compare-item good">
+                            <span class="icon">✓</span>
+                            <div>
+                                Privilege Surface Profiling
+                                <span class="subtext">Quantifies the total "Permission Cost" of an AI agent, regardless
+                                    of known CVEs.</span>
+                            </div>
+                        </div>
+                        <div class="compare-item good">
+                            <span class="icon">✓</span>
+                            <div>
+                                Context-Aware Downgrading
+                                <span class="subtext">Differentiates between core engine boilerplate and user-controlled
+                                    code execution.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 
+    <section id="pricing">
+        ... (Pricing content)
+    </section>
+    -->
+
+    <!-- 
+    <section id="roadmap">
+        ... (Roadmap content)
+    </section>
+    -->
+
+    <section id="cta">
+        <div class="cta-glow"></div>
+        <div class="container" style="position:relative;z-index:1">
+            <span class="section-label">Enterprise Ready</span>
+            <h2>Secure Your AI Workforce.<br><span class="gradient-text">Trust Nothing. Verify Everything.</span></h2>
+            <p>AgentShield takes 30 seconds to run. Paste a GitHub URL and identify lateral movement risks before your
+                next deployment.</p>
+            <div class="cta-buttons">
+                <a href="#scanner" class="btn btn-primary btn-large" id="cta-scan-btn">🔍 Run a Security Scan</a>
+                <a href="#demo" class="btn btn-ghost btn-large" id="cta-report-btn">📄 View Sample Analysis</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div>
+                <a href="#" class="footer-logo">
+                    <div class="nav-logo-icon" style="width:28px;height:28px;font-size:.9rem">🛡️</div>
+                    AgentShield
+                </a>
+                <p class="footer-desc">The industry standard for AI Agent and MCP security. Scan before you trust. Built
+                    for
+                    security teams in the AI-native economy.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#how">How It Works</a></li>
+                    <li><a href="#features">The Platform</a></li>
+                    <li><a href="#demo">Scanner Demo</a></li>
+                    <!-- <li><a href="#pricing">Pricing</a></li> -->
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Engineering</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Security Model</a></li>
+                    <li><a href="#">API Documentation</a></li>
+                    <li><a href="#">GitHub</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Incident Policy</a></li>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2025 AgentShield. All rights reserved.</span>
+            <span style="color:var(--text3)">Built for the AI-native era of software security.</span>
+        </div>
+    </footer>
+
+    <script>
+        // ── Nav highlight ────────────────────────────────────────────────────────────
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) navLinks.forEach(l => {
+                    l.style.color = l.getAttribute('href') === '#' + e.target.id ? 'var(--cyan)' : '';
+                });
+            });
+        }, { threshold: .4 });
+        sections.forEach(s => obs.observe(s));
+
+        // ── Stat counters ────────────────────────────────────────────────────────────
+        function animateCounter(el, target) {
+            let v = 0; const step = target / 60;
+            const t = setInterval(() => {
+                v = Math.min(v + step, target);
+                el.textContent = Number.isInteger(target) ? Math.round(v).toLocaleString() : v.toFixed(0);
+                if (v >= target) clearInterval(t);
+            }, 16);
+        }
+        const statObs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    document.querySelectorAll('.stat-num').forEach(el => {
+                        const num = parseInt(el.textContent.replace(/\D/g, ''));
+                        if (!isNaN(num) && num > 0) animateCounter(el, num);
+                    });
+                    statObs.disconnect();
+                }
+            });
+        }, { threshold: .5 });
+        const statsEl = document.querySelector('.hero-stats');
+        if (statsEl) statObs.observe(statsEl);
+
+        // ── Terminal animation ───────────────────────────────────────────────────────
+        document.querySelectorAll('.terminal-body > div').forEach((line, i) => {
+            line.style.opacity = '0';
+            line.style.transform = 'translateY(4px)';
+            setTimeout(() => {
+                line.style.transition = 'opacity .3s,transform .3s';
+                line.style.opacity = '1';
+                line.style.transform = 'none';
+            }, 300 + i * 80);
+        });
+
+        // ── SCANNER ──────────────────────────────────────────────────────────────────
+        const API = 'http://localhost:3001/api/scan';
+
+        function fillAndScan(target) {
+            document.getElementById('scanInput').value = target;
+            startScan();
+        }
+
+        document.getElementById('scanInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') startScan();
+        });
+
+        async function startScan() {
+            const input = document.getElementById('scanInput');
+            const target = input.value.trim();
+            if (!target) { input.focus(); return; }
+
+            const btn = document.getElementById('scanBtn');
+            const loadingBox = document.getElementById('loadingBox');
+            const errorBox = document.getElementById('errorBox');
+            const resultsBox = document.getElementById('resultsBox');
+            const ldLines = document.getElementById('ldLines');
+
+            // Reset state
+            btn.disabled = true; btn.textContent = 'Scanning...';
+            input.disabled = true;
+            errorBox.className = 'error-box'; errorBox.textContent = '';
+            resultsBox.className = 'results-box';
+            loadingBox.className = 'loading-box active';
+            ldLines.innerHTML = '';
+
+            const isGitHub = target.includes('github.com') || target.includes('/');
+            const loaderMsgs = isGitHub
+                ? ['Fetching repository file tree...', 'Classifying files (runtime vs dev vs test)...', 'Running 20 precision rules + correlation engine...', 'Computing MITRE ATT&CK mappings...', 'Calculating context-weighted risk score...']
+                : ['Fetching npm package metadata...', 'Resolving latest version...', 'Downloading source files from unpkg...', 'Running v2 analysis engine (context-aware)...', 'Building security report...'];
+
+            let msgIdx = 0;
+            const addLine = (txt, color = 'var(--text2)') => {
+                const d = document.createElement('div');
+                d.className = 'ld-line';
+                d.style.animationDelay = (msgIdx * 0.08) + 's';
+                d.style.color = color;
+                d.innerHTML = `<span class="ld-spinner"></span>${txt}`;
+                ldLines.appendChild(d);
+                msgIdx++;
+            };
+
+            addLine(loaderMsgs[0]);
+            const intervals = [1200, 600, 800, 600].map((delay, i) => setTimeout(() => {
+                if (i + 1 < loaderMsgs.length) addLine(loaderMsgs[i + 1]);
+            }, delay * (i + 1)));
+
+            const customToken = localStorage.getItem('agentshield_gh_token') || '';
+            const simulatePR = document.getElementById('simPrCheck').checked;
+
+            try {
+                const res = await fetch(API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target, customToken, simulatePR })
+                });
+                intervals.forEach(clearTimeout);
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error || 'Scan failed');
+
+                loadingBox.className = 'loading-box';
+                renderResults(data);
+                resultsBox.className = 'results-box active';
+                resultsBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (err) {
+                intervals.forEach(clearTimeout);
+                loadingBox.className = 'loading-box';
+                if (err.message.includes('fetch') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch')) {
+                    errorBox.innerHTML = '❌ &nbsp;Cannot reach AgentShield API. Make sure the server is running:<br><br>'
+                        + '<code style="font-family:var(--mono);font-size:.85rem;background:var(--bg3);padding:.4rem .8rem;border-radius:6px;display:inline-block;margin-top:.3rem">npm install &amp;&amp; node server.js</code>';
+                } else {
+                    errorBox.textContent = '❌  ' + err.message;
+                }
+                errorBox.className = 'error-box active';
+            } finally {
+                btn.disabled = false; btn.textContent = '🔍 Scan';
+                input.disabled = false;
+            }
+        }
+
+        function riskColor(score) {
+            if (score >= 75) return 'var(--red)';
+            if (score >= 50) return 'var(--orange)';
+            if (score >= 25) return 'var(--yellow)';
+            return 'var(--green)';
+        }
+
+        function renderResults(data) {
+            const { target, targetType, filesScanned, portsDetected, capabilities, previousCapabilities, riskScore, riskLevel, counts, findings, fileSummary, scannedAt } = data;
+            const color = riskColor(riskScore);
+            const pct = riskScore;
+            const lvlClass = riskLevel === 'Critical' ? 'badge-critical' : riskLevel === 'High' ? 'badge-high-lvl' : riskLevel === 'Medium' ? 'badge-medium-lvl' : 'badge-low-lvl';
+            const icon = targetType === 'github' ? '⚙️' : '📦';
+
+            // Build file context summary
+            const ctxSummary = fileSummary ? fileSummary.reduce((acc, f) => { acc[f.context] = (acc[f.context] || 0) + 1; return acc; }, {}) : {};
+            const ctxTags = Object.entries(ctxSummary).map(([ctx, n]) =>
+                `<span style="font-size:.72rem;font-family:var(--mono);background:var(--bg3);border:1px solid var(--border);color:var(--text3);padding:.15rem .5rem;border-radius:4px">${ctx}:${n}</span>`
+            ).join(' ');
+
+            let portsHtml = '';
+            if (portsDetected && portsDetected.length > 0) {
+                portsHtml = `<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--cyan)">🔌 Exposed Ports: ${portsDetected.map(p => escH(p)).join(', ')}</div>`;
+            }
+
+            let capHtml = '';
+            if (capabilities) {
+                const hasDiff = !!previousCapabilities;
+                const isDiffStr = (curr, prev) => curr > prev ? `<span style="color:var(--green);font-size:0.7rem;margin-left:4px">(+${curr - prev} new)</span>` : '';
+
+                const fsR = capabilities.fsRead, fsW = capabilities.fsWrite, fsD = capabilities.fsDelete;
+                const pFsR = previousCapabilities?.fsRead || 0, pFsW = previousCapabilities?.fsWrite || 0, pFsD = previousCapabilities?.fsDelete || 0;
+
+                const shI = capabilities.shellImport, shE = capabilities.shellExec;
+                const pShI = previousCapabilities?.shellImport || 0, pShE = previousCapabilities?.shellExec || 0;
+
+                const net = capabilities.network, pNet = previousCapabilities?.network || 0;
+                const dMod = capabilities.dynamicModule, pDMod = previousCapabilities?.dynamicModule || 0;
+                const dEval = capabilities.dynamicEval, pDEval = previousCapabilities?.dynamicEval || 0;
+                const envC = capabilities.environment, pEnv = previousCapabilities?.environment || 0;
+                const envS = capabilities.envSensitive, pEnvS = previousCapabilities?.envSensitive || 0;
+
+                const hasFs = fsR > 0 || fsW > 0 || fsD > 0;
+                const hasShell = shI > 0 || shE > 0;
+                const hasDExec = dMod > 0 || dEval > 0;
+                const fsColor = hasFs ? 'var(--orange)' : 'var(--text3)';
+                const shellColor = hasShell ? 'var(--red)' : 'var(--text3)';
+                const netColor = net > 0 ? 'var(--orange)' : 'var(--text3)';
+                const dExecColor = hasDExec ? 'var(--yellow)' : 'var(--text3)';
+                const envColor = envC > 0 ? 'var(--cyan)' : 'var(--text3)';
+
+                let diffHeader = '';
+                if (hasDiff) {
+                    diffHeader = `
+                    <div style="background:rgba(0, 255, 136, 0.05); border:1px solid rgba(0, 255, 136, 0.2); padding:0.6rem 1rem; border-radius:6px; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+                      <div>
+                        <div style="font-size:0.7rem; color:var(--text2); text-transform:uppercase; letter-spacing:0.05em; font-weight:700;">🔄 PR Diff Mode</div>
+                        <div style="font-size:0.85rem; color:var(--text); margin-top:0.2rem;">Privilege Change: <strong style="color:var(--text3)">${previousCapabilities.privilegeSurface}</strong> &rarr; <strong style="color:${capabilities.privilegeSurface === 'High' ? 'var(--red)' : capabilities.privilegeSurface === 'Elevated' ? 'var(--orange)' : capabilities.privilegeSurface === 'Moderate' ? 'var(--yellow)' : 'var(--cyan)'}">${capabilities.privilegeSurface}</strong></div>
+                      </div>
+                      <div style="font-size:1.1rem; font-weight:800; color:var(--text)">
+                        <span style="color:var(--text3); font-size:0.8rem; font-weight:400">Score:</span>
+                        <strike style="color:var(--text3)">${previousCapabilities.privilegeScore}</strike> <span style="color:var(--cyan)">&rarr; ${capabilities.privilegeScore}</span>
+                      </div>
+                    </div>`;
+                }
+
+                capHtml = `
+              <div style="margin-top:1.5rem;background:var(--bg3);padding:1.5rem;border-radius:12px;border:1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
+                  <div style="font-size:0.9rem;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:0.05em">Capability Breakdown</div>
+                  <div style="text-align:right;">
+                    <div style="opacity:0.6;font-size:0.65rem;font-weight:700;margin-bottom:0.25rem;color:var(--text2); letter-spacing:0.05em;">PRIVILEGE SURFACE</div>
+                    <div style="font-size:0.85rem;font-weight:800;color:${capabilities.privilegeSurface === 'High' ? 'var(--red)' : capabilities.privilegeSurface === 'Elevated' ? 'var(--orange)' : capabilities.privilegeSurface === 'Moderate' ? 'var(--yellow)' : 'var(--cyan)'}; display:flex; align-items:center; justify-content:flex-end;">
+                      ${capabilities.privilegeSurface} (${capabilities.privilegeScore} pts)
+                      <div class="priv-info-trigger" tabindex="0">
+                        i
+                        <div class="priv-info-popup">
+                          <div style="font-size:0.7rem; font-weight:900; color:var(--text); text-transform:uppercase; margin-bottom:0.8rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; display:flex; align-items:center; gap:8px; letter-spacing:0.05em;">
+                            <span>Why ${capabilities.privilegeSurface}?</span>
+                          </div>
+                          <div style="font-size:0.75rem; color:var(--text); line-height:1.6; font-weight:500;">
+                            ${capabilities.privilegeReasons?.map(r => '<div style="margin-bottom:6px; display:flex; gap:8px;"><span style="color:var(--cyan);">&bull;</span> <span style="opacity:0.9">' + r + '</span></div>').join('')}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                ${diffHeader}
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:0.75rem;font-size:0.8rem;">
+                  
+                  <div style="background:var(--bg2);padding:0.6rem 0.85rem;border-radius:6px;border-left:3px solid ${fsColor}">
+                    <div style="color:${fsColor};font-weight:700;margin-bottom:0.3rem">Filesystem Access</div>
+                    <div style="color:var(--text2);font-size:0.75rem;line-height:1.5">
+                      ${hasFs ? `
+                      &bull; <strong style="color:var(--text)">${fsR}</strong> read operations ${hasDiff ? isDiffStr(fsR, pFsR) : ''}<br>
+                      &bull; <strong style="color:var(--text)">${fsW}</strong> write operations ${hasDiff ? isDiffStr(fsW, pFsW) : ''}<br>
+                      &bull; <strong style="color:var(--text)">${fsD}</strong> delete operations ${hasDiff ? isDiffStr(fsD, pFsD) : ''}
+                      ` : 'None detected'}
+                    </div>
+                  </div>
+
+                  <div style="background:var(--bg2);padding:0.6rem 0.85rem;border-radius:6px;border-left:3px solid ${shellColor}">
+                    <div style="color:${shellColor};font-weight:700;margin-bottom:0.3rem">Shell Access</div>
+                    <div style="color:var(--text2);font-size:0.75rem;line-height:1.5">
+                      ${hasShell ? `
+                      &bull; <strong style="color:var(--text)">${shI}</strong> module imports ${hasDiff ? isDiffStr(shI, pShI) : ''}<br>
+                      &bull; <strong style="color:var(--text)">${shE}</strong> execution calls ${hasDiff ? isDiffStr(shE, pShE) : ''}
+                      ` : 'None detected'}
+                    </div>
+                  </div>
+
+                  <div style="background:var(--bg2);padding:0.6rem 0.85rem;border-radius:6px;border-left:3px solid ${netColor}">
+                    <div style="color:${netColor};font-weight:700;margin-bottom:0.3rem">Network Access</div>
+                    <div style="color:var(--text2);font-size:0.75rem;line-height:1.5">
+                      ${net > 0 ? `
+                      &bull; <strong style="color:var(--text)">${net}</strong> outbound calls ${hasDiff ? isDiffStr(net, pNet) : ''}
+                      ` : 'None detected'}
+                    </div>
+                  </div>
+
+                  <div style="background:var(--bg2);padding:0.6rem 0.85rem;border-radius:6px;border-left:3px solid ${dExecColor}">
+                    <div style="color:${dExecColor};font-weight:700;margin-bottom:0.3rem">Dynamic Execution</div>
+                    <div style="color:var(--text2);font-size:0.75rem;line-height:1.5">
+                      ${hasDExec ? `
+                      &bull; <strong style="color:var(--text)">${dMod}</strong> dynamic module loads ${hasDiff ? isDiffStr(dMod, pDMod) : ''}<br>
+                      &bull; <strong style="color:var(--text)">${dEval}</strong> code evaluation calls ${hasDiff ? isDiffStr(dEval, pDEval) : ''}
+                      ` : 'None detected'}
+                    </div>
+                  </div>
+
+                  <div style="background:var(--bg2);padding:0.6rem 0.85rem;border-radius:6px;border-left:3px solid ${envColor}">
+                    <div style="color:${envColor};font-weight:700;margin-bottom:0.3rem">Environment Access</div>
+                    <div style="color:var(--text2);font-size:0.75rem;line-height:1.5">
+                      ${envC > 0 ? `
+                      &bull; <strong style="color:var(--text)">${envC}</strong> variable reads ${hasDiff ? isDiffStr(envC, pEnv) : ''}<br>
+                      &bull; <strong style="${envS > 0 ? 'color:var(--red); font-weight:700;' : ''}">${envS > 0 ? 'Sensitive access detected' : 'No sensitive vars detected'}</strong> ${hasDiff ? isDiffStr(envS, pEnvS) : ''}
+                      ` : 'None detected'}
+                    </div>
+                  </div>
+
+                </div>
+              </div>`;
+            }
+
+            document.getElementById('resultsHeader').innerHTML = `
+                    <div class="res-ring" style="background:conic-gradient(${color} 0% ${pct}%,var(--border) ${pct}% 100%)">
+                        <div class="res-ring-inner" style="color:${color}">${pct}</div>
+                    </div>
+                    <div class="res-meta" style="flex:1">
+                        <h3>${icon} ${escH(target)}</h3>
+                        <p>${filesScanned} files scanned &nbsp;·&nbsp; ${new Date(scannedAt).toLocaleTimeString()}</p>
+                        <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin:.35rem 0">${ctxTags}</div>
+                        ${portsHtml}
+                        ${capHtml}
+                        <div class="res-badges" style="margin-top:1rem;">
+                            <span class="res-badge ${lvlClass}">${riskLevel} Risk</span>
+                            ${counts.high ? `<span class="res-badge badge-critical">${counts.high} HIGH</span>` : ''}
+                            ${counts.medium ? `<span class="res-badge badge-high-lvl">${counts.medium} MED</span>` : ''}
+                            ${counts.low ? `<span class="res-badge badge-low-lvl">${counts.low} LOW</span>` : ''}
+                        </div>
+                    </div>`;
+
+            const fl = document.getElementById('findingsList');
+            if (!findings.length) {
+                fl.innerHTML = '<div class="no-findings"><span style="font-size:2rem">✅</span><br><strong style="font-size:1.1rem">No real threats detected</strong><br><span style="font-size:.875rem;opacity:.7">Passed all precision rules.</span></div>';
+                return;
+            }
+
+            const clustersDef = {
+                '💻 Command Execution & Injection Surface': ['REVERSE_SHELL', 'CMD_INJECT_DYNAMIC', 'EVAL_DYNAMIC', 'CMD_EXEC_STATIC', 'DYNAMIC_REQUIRE', 'OBFUSCATED_EXEC', 'PROMPT_INJECTION'],
+                '🌐 Network & Data Exfiltration Surface': ['CREDENTIAL_EXFIL', 'NETWORK_MUTATING', 'NETWORK_GET', 'HARDCODED_IP'],
+                '🗝️ Filesystem & Credential Surface': ['SENSITIVE_PATH_READ', 'FS_USER_PATH', 'FS_LOCAL_READ', 'ENV_SENSITIVE_READ', 'HARDCODED_SECRET', 'ENV_CHECK'],
+                '📦 Supply Chain & Obfuscation': ['POSTINSTALL_EXEC', 'POSTINSTALL', 'LARGE_BASE64']
+            };
+
+            const clustered = {};
+            findings.forEach(f => {
+                let assigned = '🧩 Other Findings';
+                for (const [c, rules] of Object.entries(clustersDef)) {
+                    if (rules.includes(f.ruleId)) { assigned = c; break; }
+                }
+                if (!clustered[assigned]) clustered[assigned] = [];
+                clustered[assigned].push(f);
+            });
+
+            const renderFinding = f => {
+                const sev = f.severity;
+                const isCorrelation = f.fileContext === 'correlation' || f.synthetic;
+                const ctxLabel = ctxBadge(f.fileContext);
+                const occNote = f.allOccurrences > 1 ? `<span style="color:var(--text3)">${f.allOccurrences} total occurrences</span>` : '';
+                const pathsList = f.files && f.files.length > 0 ? f.files.map(escH).join(' · ') : (escH(f.file) + (f.line ? ':' + f.line : ''));
+
+                const expColor = f.exploitability === 'Confirmed' ? 'var(--red)' : f.exploitability === 'Likely' ? 'var(--orange)' : f.exploitability === 'Possible' ? 'var(--yellow)' : 'var(--text3)';
+                const expStyle = `color:${expColor}; font-weight:700; border:1px solid ${expColor}40; padding:0.1rem 0.4rem; border-radius:4px; font-size:0.7rem;`;
+
+                return `<div class="finding finding-${sev}" style="margin-bottom:1rem">
+      <div class="finding-header">
+        <div class="finding-title">${sevIcon(sev)} ${escH(f.name)}${isCorrelation ? ' <span style="font-size:.7rem;background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3);padding:.1rem .45rem;border-radius:4px;font-weight:700">CORRELATED</span>' : ''}</div>
+        <span class="finding-badge badge-${sev}">${sev.toUpperCase()}</span>
+      </div>
+      <div class="finding-desc">${escH(f.description)}</div>
+      ${f.snippet && !isCorrelation ? `<div class="finding-snippet">${escH(f.snippet)}</div>` : ''}
+      <div class="finding-meta" style="flex-wrap:wrap;gap:0.75rem;">
+        <span class="conf">${f.confidence}% confidence</span>
+        <span class="mitre-tag">${f.mitre.id}</span>
+        ${ctxLabel}
+        <span style="${expStyle}">Exploitability: ${f.exploitability || 'Unconfirmed'}</span>
+        <strong style="color:var(--cyan2)">Paths:</strong>
+        <span style="font-size: 0.7rem;">${pathsList}</span>
+        ${occNote}
+      </div>
+      <div class="finding-remediation">💡 <span>${escH(f.remediation)}</span></div>
+    </div>`;
+            };
+
+            fl.innerHTML = Object.entries(clustered)
+                // Sort clusters based on highest severity inside them
+                .sort((a, b) => {
+                    const maxSevOrder = (arr) => Math.min(...arr.map(x => x.severity === 'high' ? 0 : x.severity === 'medium' ? 1 : 2));
+                    return maxSevOrder(a[1]) - maxSevOrder(b[1]);
+                })
+                .map(([clusterName, clusterFindings]) => {
+                    return `<div style="margin-bottom:2.5rem;">
+                    <h4 style="margin-bottom:1rem;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center;">
+                        <span>${clusterName}</span>
+                        <span style="font-size:0.75rem;font-weight:400;color:var(--text3);background:var(--surface2);padding:0.1rem 0.5rem;border-radius:100px">${clusterFindings.length}</span>
+                    </h4>
+                  ${clusterFindings.map(renderFinding).join('')}
+                </div>`;
+                }).join('');
+        }
+
+        function ctxBadge(ctx) {
+            const cfg = { runtime: ['#00d4ff', 'runtime'], dev: ['#ff8c42', 'dev-script'], test: ['#ffd166', 'test-file'], config: ['#a855f7', 'config'], correlation: ['#a855f7', 'correlation'], unknown: ['#4a5878', 'unknown'] };
+            const [col, label] = cfg[ctx] || cfg.unknown;
+            return `<span style="font-size:.7rem;font-family:var(--mono);color:${col};background:${col}18;border:1px solid ${col}30;padding:.1rem .45rem;border-radius:4px">${label}</span>`;
+        }
+        function sevIcon(s) { return s === 'high' ? '⚠️' : s === 'medium' ? '🔶' : '🔸'; }
+        function escH(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+        // ── DASHBOARD LOGIC ───────────────────────────────────────────────────────────
+        function openDashboard() {
+            const token = localStorage.getItem('agentshield_gh_token') || '';
+            document.getElementById('ghTokenInput').value = token;
+
+            const loggedIn = localStorage.getItem('agentshield_logged_in') === 'true';
+            document.getElementById('loginPane').style.display = loggedIn ? 'none' : 'block';
+            document.getElementById('dashPane').style.display = loggedIn ? 'block' : 'none';
+
+            if (loggedIn && !localStorage.getItem('agentshield_api_key')) {
+                generateApiKey();
+            }
+
+            document.getElementById('dashModal').classList.add('active');
+        }
+
+        function closeDashboard() {
+            document.getElementById('dashModal').classList.remove('active');
+        }
+
+        function performLogin() {
+            localStorage.setItem('agentshield_logged_in', 'true');
+            if (!localStorage.getItem('agentshield_api_key')) {
+                localStorage.setItem('agentshield_api_key', 'agsh_' + Math.random().toString(36).substr(2, 16));
+            }
+            openDashboard();
+        }
+
+        function performLogout() {
+            localStorage.setItem('agentshield_logged_in', 'false');
+            openDashboard();
+            const btn = document.querySelector('.nav-cta .btn-ghost');
+            btn.textContent = 'CI/CD Dashboard';
+        }
+
+        function generateApiKey() {
+            const newKey = 'agsh_' + Math.random().toString(36).substr(2, 16);
+            localStorage.setItem('agentshield_api_key', newKey);
+            const display = document.getElementById('apiKeyDisplay');
+            if (display.type === 'text') {
+                display.value = newKey;
+            }
+        }
+
+        function toggleApiVisibility() {
+            const display = document.getElementById('apiKeyDisplay');
+            const btn = document.getElementById('btnKeyVis');
+            const realKey = localStorage.getItem('agentshield_api_key') || 'agsh_demo_only_xxxxx';
+
+            if (display.type === 'password') {
+                display.type = 'text';
+                display.value = realKey;
+                btn.textContent = 'Hide';
+            } else {
+                display.type = 'password';
+                display.value = 'agsh_demo_only_xxxxx';
+                btn.textContent = 'Show';
+            }
+        }
+
+        function saveDashboard() {
+            const token = document.getElementById('ghTokenInput').value.trim();
+            if (token) {
+                localStorage.setItem('agentshield_gh_token', token);
+            } else {
+                localStorage.removeItem('agentshield_gh_token');
+            }
+            closeDashboard();
+
+            const btn = document.querySelector('.nav-cta .btn-ghost');
+            const originalText = btn.textContent;
+            btn.innerHTML = '✅ Saved';
+            btn.style.color = 'var(--green)';
+            btn.style.borderColor = 'var(--green)';
+            setTimeout(() => {
+                btn.innerHTML = 'CI/CD Dashboard';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }, 2000);
+        }
+    </script>
+</body>
+
+</html>
